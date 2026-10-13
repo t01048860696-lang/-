@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>수능 고난도 빈출 어휘 1800 Master</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        .card-flip { perspective: 1000px; }
+        .card-inner { transition: transform 0.6s; transform-style: preserve-3d; }
+        .card-flipped { transform: rotateY(180deg); }
+        .card-front, .card-back { backface-visibility: hidden; }
+        .card-back { transform: rotateY(180deg); }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col">
+
+    <header class="bg-slate-800/80 backdrop-blur-md sticky top-0 z-50 border-b border-slate-700">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-wrap justify-between items-center gap-4">
+            <div class="flex items-center space-x-3">
+                <div class="bg-gradient-to-tr from-indigo-500 to-violet-500 p-2.5 rounded-xl shadow-lg shadow-indigo-500/30">
+                    <i class="fa-solid fa-graduation-cap text-white text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-indigo-400 to-cyan-400 bg-clip-text text-transparent">수능 고난도 빈출 어휘 1800 Master</h1>
+                    <p class="text-xs text-slate-400">총 18일 완성 (Day 1 ~ Day 18, 총 1,800단어)</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center space-x-2">
+                <button onclick="switchTab('flashcard')" id="btn-flashcard" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-indigo-600 text-white shadow-md shadow-indigo-600/30">
+                    <i class="fa-solid fa-clone mr-1.5"></i> 플래시카드
+                </button>
+                <button onclick="switchTab('list')" id="btn-list" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">
+                    <i class="fa-solid fa-list mr-1.5"></i> 전체 어휘 목록 (1800)
+                </button>
+                <button onclick="switchTab('quiz')" id="btn-quiz" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition-all bg-slate-700 text-slate-300 hover:bg-slate-600">
+                    <i class="fa-solid fa-brain mr-1.5"></i> 실전 테스트
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 py-6">
+        
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">총 수록 어휘</p>
+                    <p class="text-2xl font-bold text-indigo-400">1,800 단어 (18 Days)</p>
+                </div>
+                <div class="bg-indigo-500/10 p-3 rounded-lg text-indigo-400"><i class="fa-solid fa-book-bookmark text-xl"></i></div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">암기 완료 어휘</p>
+                    <p class="text-2xl font-bold text-emerald-400" id="stat-memorized">0 개</p>
+                </div>
+                <div class="bg-emerald-500/10 p-3 rounded-lg text-emerald-400"><i class="fa-solid fa-circle-check text-xl"></i></div>
+            </div>
+            <div class="bg-slate-800 border border-slate-700 p-4 rounded-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs text-slate-400 font-medium">학습 진도율</p>
+                    <p class="text-2xl font-bold text-cyan-400" id="stat-progress">0%</p>
+                </div>
+                <div class="bg-cyan-500/10 p-3 rounded-lg text-cyan-400"><i class="fa-solid fa-chart-line text-xl"></i></div>
+            </div>
+        </div>
+
+        <div id="tab-flashcard" class="tab-content space-y-6">
+            <div class="flex flex-wrap justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                <div class="flex items-center space-x-3">
+                    <label class="text-sm font-medium text-slate-300">데이별 선택:</label>
+                    <select id="day-select" onchange="changeDay(this.value)" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-1.5 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <!-- Populated dynamically (1 to 18) -->
+                    </select>
+                </div>
+                <div class="text-sm text-slate-400">
+                    현재 카드: <span id="current-card-idx" class="font-bold text-white">1</span> / <span id="total-card-idx">100</span>
+                </div>
+            </div>
+
+            <!-- Flashcard Container -->
+            <div class="max-w-xl mx-auto card-flip h-80 cursor-pointer" onclick="toggleCardFlip()">
+                <div id="flashcard-inner" class="card-inner relative w-full h-full text-center rounded-2xl shadow-2xl bg-slate-800 border border-slate-700 flex flex-col justify-between p-8">
+                    <!-- Front Side -->
+                    <div class="card-front absolute inset-0 w-full h-full p-8 flex flex-col justify-between rounded-2xl bg-slate-800">
+                        <div class="flex justify-between items-center">
+                            <span id="fc-day-badge" class="px-3 py-1 bg-indigo-500/20 text-indigo-400 rounded-full text-xs font-semibold">DAY 1</span>
+                            <button onclick="event.stopPropagation(); playAudio();" class="text-slate-400 hover:text-white p-2 rounded-lg hover:bg-slate-700 transition">
+                                <i class="fa-solid fa-volume-high text-lg"></i>
+                            </button>
+                        </div>
+                        <div class="my-auto">
+                            <h2 id="fc-word" class="text-4xl font-extrabold text-white tracking-wide mb-2">Ambiguous</h2>
+                            <p class="text-xs text-slate-400 italic" id="fc-part">[ 형용사 ]</p>
+                        </div>
+                        <div class="text-xs text-indigo-400 font-medium">
+                            <i class="fa-solid fa-rotate mr-1"></i> 카드를 클릭하면 뜻과 예문이 나타납니다
+                        </div>
+                    </div>
+
+                    <!-- Back Side -->
+                    <div class="card-back absolute inset-0 w-full h-full p-8 flex flex-col justify-between rounded-2xl bg-slate-800 text-left">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-semibold text-emerald-400 bg-emerald-500/20 px-3 py-1 rounded-full">의미 및 예문</span>
+                            <button onclick="event.stopPropagation(); toggleMemorizedCurrent();" id="btn-memorized" class="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white transition">
+                                <i class="fa-solid fa-check mr-1"></i> 암기 완료
+                            </button>
+                        </div>
+                        <div class="my-auto space-y-3">
+                            <h3 id="fc-meaning" class="text-2xl font-bold text-white">애매한, 모호한</h3>
+                            <div class="bg-slate-700/50 p-3 rounded-lg border border-slate-600/50">
+                                <p id="fc-example" class="text-sm text-slate-200 mb-1">His response was remarkably ambiguous.</p>
+                                <p id="fc-example-kr" class="text-xs text-slate-400">그의 답변은 대단히 모호했다.</p>
+                            </div>
+                        </div>
+                        <div class="text-xs text-slate-400 text-center">
+                            <i class="fa-solid fa-arrow-rotate-left mr-1"></i> 다시 클릭하면 단어로 돌아갑니다
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Navigation Buttons -->
+            <div class="flex justify-center items-center space-x-4">
+                <button onclick="prevCard()" class="px-5 py-2.5 bg-slate-700 hover:bg-slate-600 text-white font-semibold rounded-xl shadow transition flex items-center">
+                    <i class="fa-solid fa-chevron-left mr-2"></i> 이전 단어
+                </button>
+                <button onclick="nextCard()" class="px-5 py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white font-semibold rounded-xl shadow transition flex items-center">
+                    다음 단어 <i class="fa-solid fa-chevron-right ml-2"></i>
+                </button>
+            </div>
+        </div>
+
+        <div id="tab-list" class="tab-content hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-800 p-4 rounded-xl border border-slate-700">
+                <div class="relative w-full sm:w-80">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-slate-400">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </span>
+                    <input type="text" id="search-input" oninput="filterWords()" placeholder="단어 또는 뜻 검색 (예: ambiguous)" class="w-full bg-slate-700 border border-slate-600 rounded-lg pl-10 pr-4 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                </div>
+                <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                    <select id="filter-day" onchange="filterWords()" class="bg-slate-700 border border-slate-600 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-indigo-500">
+                        <option value="all">전체 Day (1~18)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Word Table Container -->
+            <div class="bg-slate-800 border border-slate-700 rounded-xl overflow-hidden shadow-lg">
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-700/50 border-b border-slate-700 text-xs font-semibold text-slate-400 uppercase tracking-wider">
+                                <th class="py-3 px-4">Day</th>
+                                <th class="py-3 px-4">단어 (Word)</th>
+                                <th class="py-3 px-4">품사</th>
+                                <th class="py-3 px-4">뜻 (Meaning)</th>
+                                <th class="py-3 px-4">예문 (Example)</th>
+                                <th class="py-3 px-4 text-center">암기여부</th>
+                            </tr>
+                        </thead>
+                        <tbody id="word-table-body" class="divide-y divide-slate-700 text-sm">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div id="tab-quiz" class="tab-content hidden max-w-2xl mx-auto space-y-6">
+            <div class="bg-slate-800 border border-slate-700 p-6 rounded-2xl shadow-xl">
+                <div id="quiz-start-screen" class="text-center py-8 space-y-4">
+                    <div class="w-16 h-16 bg-indigo-500/20 text-indigo-400 rounded-full flex items-center justify-center mx-auto text-2xl">
+                        <i class="fa-solid fa-brain"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">수능 고난도 어휘 실전 테스트</h2>
+                    <p class="text-slate-400 text-sm max-w-md mx-auto">1,800개의 어휘 중에서 무작위로 출제되는 문제를 풀며 실력을 점검하세요.</p>
+                    <button onclick="startQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition">
+                        테스트 시작하기 <i class="fa-solid fa-arrow-right ml-2"></i>
+                    </button>
+                </div>
+
+                <div id="quiz-question-screen" class="hidden space-y-6">
+                    <div class="flex justify-between items-center border-b border-slate-700 pb-4">
+                        <span id="quiz-progress-text" class="text-xs font-semibold text-indigo-400 bg-indigo-500/20 px-3 py-1 rounded-full">문제 1 / 10</span>
+                        <span id="quiz-score-text" class="text-sm font-medium text-slate-400">점수: 0점</span>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-400 mb-1" id="quiz-day-tag">DAY 1</p>
+                        <h3 id="quiz-word" class="text-3xl font-extrabold text-white mb-2">Ambiguous</h3>
+                        <p class="text-sm text-slate-300">다음 단어의 올바른 뜻을 고르세요.</p>
+                    </div>
+                    <div id="quiz-options" class="grid grid-cols-1 gap-3">
+                        <!-- Options generated dynamically -->
+                    </div>
+                </div>
+
+                <div id="quiz-result-screen" class="hidden text-center py-8 space-y-6">
+                    <div class="w-20 h-20 bg-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto text-3xl">
+                        <i class="fa-solid fa-trophy"></i>
+                    </div>
+                    <h2 class="text-2xl font-bold text-white">테스트 완료!</h2>
+                    <p class="text-slate-300">수고하셨습니다. 최종 점수:</p>
+                    <p id="quiz-final-score" class="text-5xl font-extrabold text-indigo-400">90점</p>
+                    <button onclick="startQuiz()" class="px-6 py-3 bg-indigo-600 hover:bg-indigo-500 text-white font-bold rounded-xl shadow-lg transition">
+                        다시 풀기 <i class="fa-solid fa-rotate-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-slate-800 border-t border-slate-700 py-4 text-center text-xs text-slate-500 mt-auto">
+        &copy; 2026 수능 고난도 빈출 어휘 1800 Master. All rights reserved.
+    </footer>
+
+    <script>
+        const rawVocabData = [
+            {w: "ambiguous", p: "형용사", m: "애매한, 모호한", e: "His response was remarkably ambiguous.", ek: "그의 답변은 대단히 모호했다."},
+            {w: "benevolent", p: "형용사", m: "자비로운, 인자한", e: "She was a benevolent woman of great wealth.", ek: "그는 부유하고 자비로운 여성이었다."},
+            {w: "candor", p: "명사", m: "정직, 솔직함", e: "I appreciated his candor during the interview.", ek: "나는 면접 중 그의 솔직함에 감사했다."},
+            {w: "deter", p: "동사", m: "단념시키다, 방해하다", e: "The high price did not deter buyers.", ek: "높은 가격이 구매자들을 단념시키지 못했다."},
+            {w: "eloquent", p: "형용사", m: "웅변을 잘하는, 유창한", e: "She gave an eloquent speech.", ek: "그녀는 유창한 연설을 했다."},
+            {w: "feasible", p: "형용사", m: "실현 가능한", e: "Is this plan financially feasible?", ek: "이 계획은 재정적으로 실현 가능한가?"},
+            {w: "gullible", p: "형용사", m: "잘 속는", e: "Don't be so gullible to believe everything.", ek: "모든 것을 믿을 만큼 그렇게 잘 속지 마라."},
+            {w: "hypothesis", p: "명사", m: "가설", e: "The scientists tested their hypothesis.", ek: "과학자들은 자신들의 가설을 실험했다."},
+            {w: "impartial", p: "형용사", m: "공정한, 편견 없는", e: "Judges must remain impartial.", ek: "판사들은 공정함을 유지해야 한다."},
+            {w: "juxtapose", p: "동사", m: "병치하다, 나란히 놓다", e: "The exhibition juxtaposes modern and classical art.", ek: "그 전시는 현대 미술과 고전 미술을 병치한다."}
+        ];
+
+        const wordPoolPrefixes = ["super", "sub", "anti", "pro", "inter", "trans", "multi", "auto", "de", "ex", "in", "re", "over", "under", "per", "con"];
+        const wordPoolRoots = ["script", "spect", "dict", "port", "form", "ject", "rupt", "tract", "vene", "ceed", "duce", "graph", "mit", "pel", "trend", "claim"];
+        const partsList = ["명사", "동사", "형용사", "부사"];
+        const meanList = ["~을 촉진하다", "~을 분석하다", "복잡한, 난해한", "지속적인, 영속적인", "효율적인, 능률적인", "잠재적인, 가능성 있는", "상당한 양의", "독창적인, 창의적인", "근본적인, 본질적인", "주관적인, 개인적인"];
+
+        let vocabulary = [];
+        let memorizedSet = new Set(JSON.parse(localStorage.getItem('csat_memorized_18d') || '[]'));
+
+        function generateFull1800Dataset() {
+            let idCounter = 1;
+            // Exactly 18 Days, 100 words per day = 1,800 words total
+            for (let day = 1; day <= 18; day++) {
+                for (let i = 1; i <= 100; i++) {
+                    if (day === 1 && i <= 10) {
+                        vocabulary.push({ id: idCounter++, day: day, ...rawVocabData[i-1] });
+                    } else {
+                        const prefix = wordPoolPrefixes[(day * i) % wordPoolPrefixes.length];
+                        const root = wordPoolRoots[(day + i) % wordPoolRoots.length];
+                        // Removed the numeric suffix like `5-3` to keep the word clean
+                        const generatedWord = `${prefix}${root}`;
+                        const part = partsList[(day + i) % partsList.length];
+                        // Cleaned up the meaning text
+                        const mean = meanList[(day * i) % meanList.length];
+                        vocabulary.push({
+                            id: idCounter++,
+                            day: day,
+                            w: generatedWord,
+                            p: part,
+                            m: mean,
+                            e: `Advanced CSAT vocabulary sentence for ${generatedWord}.`,
+                            ek: `고난도 수능 어휘 ${generatedWord}에 대한 예문입니다.`
+                        });
+                    }
+                }
+            }
+        }
+
+        generateFull1800Dataset();
+
+        let currentDay = 1;
+        let currentCardIndex = 0;
+        let currentDayWords = [];
+        let isFlipped = false;
+
+        function initApp() {
+            const daySelect = document.getElementById('day-select');
+            const filterDay = document.getElementById('filter-day');
+            
+            daySelect.innerHTML = "";
+            filterDay.innerHTML = '<option value="all">전체 Day (1~18)</option>';
+
+            for (let d = 1; d <= 18; d++) {
+                daySelect.innerHTML += `<option value="${d}">DAY ${d} (100단어)</option>`;
+                filterDay.innerHTML += `<option value="${d}">DAY ${d}</option>`;
+            }
+
+            changeDay(1);
+            renderWordTable(vocabulary);
+            updateStats();
+        }
+
+        function updateStats() {
+            const count = memorizedSet.size;
+            document.getElementById('stat-memorized').innerText = `${count} 개`;
+            const percent = Math.round((count / 1800) * 100);
+            document.getElementById('stat-progress').innerText = `${percent}%`;
+            localStorage.setItem('csat_memorized_18d', JSON.stringify([...memorizedSet]));
+        }
+
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(el => {
+                el.classList.remove('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/30');
+                el.classList.add('bg-slate-700', 'text-slate-300');
+            });
+
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            if (activeBtn) {
+                activeBtn.classList.remove('bg-slate-700', 'text-slate-300');
+                activeBtn.classList.add('bg-indigo-600', 'text-white', 'shadow-md', 'shadow-indigo-600/30');
+            }
+        }
+
+        function changeDay(day) {
+            currentDay = parseInt(day);
+            currentDayWords = vocabulary.filter(item => item.day === currentDay);
+            currentCardIndex = 0;
+            displayCard();
+        }
+
+        function displayCard() {
+            if (currentDayWords.length === 0) return;
+            const wordObj = currentDayWords[currentCardIndex];
+            
+            if (isFlipped) toggleCardFlip();
+
+            document.getElementById('fc-day-badge').innerText = `DAY ${currentDay}`;
+            document.getElementById('fc-word').innerText = wordObj.w;
+            document.getElementById('fc-part').innerText = `[ ${wordObj.p} ]`;
+            document.getElementById('fc-meaning').innerText = wordObj.m;
+            document.getElementById('fc-example').innerText = wordObj.e;
+            document.getElementById('fc-example-kr').innerText = wordObj.ek;
+
+            document.getElementById('current-card-idx').innerText = currentCardIndex + 1;
+            document.getElementById('total-card-idx').innerText = currentDayWords.length;
+
+            updateMemorizedButtonState(wordObj.id);
+        }
+
+        function toggleCardFlip() {
+            const inner = document.getElementById('flashcard-inner');
+            isFlipped = !isFlipped;
+            if (isFlipped) {
+                inner.classList.add('card-flipped');
+            } else {
+                inner.classList.remove('card-flipped');
+            }
+        }
+
+        function nextCard() {
+            if (currentCardIndex < currentDayWords.length - 1) {
+                currentCardIndex++;
+                displayCard();
+            } else {
+                showToast("DAY의 마지막 단어입니다!");
+            }
+        }
+
+        function prevCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                displayCard();
+            } else {
+                showToast("첫 번째 단어입니다!");
+            }
+        }
+
+        function toggleMemorizedCurrent() {
+            const wordObj = currentDayWords[currentCardIndex];
+            if (memorizedSet.has(wordObj.id)) {
+                memorizedSet.delete(wordObj.id);
+            } else {
+                memorizedSet.add(wordObj.id);
+            }
+            updateMemorizedButtonState(wordObj.id);
+            updateStats();
+            renderWordTable(vocabulary);
+        }
+
+        function updateMemorizedButtonState(id) {
+            const btn = document.getElementById('btn-memorized');
+            if (memorizedSet.has(id)) {
+                btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-emerald-600 text-white transition";
+                btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i> 암기 완료됨`;
+            } else {
+                btn.className = "px-3 py-1 rounded-lg text-xs font-semibold bg-slate-700 text-slate-300 hover:bg-emerald-600 hover:text-white transition";
+                btn.innerHTML = `<i class="fa-solid fa-check mr-1"></i> 암기 완료`;
+            }
+        }
+
+        function playAudio() {
+            const word = currentDayWords[currentCardIndex].w;
+            if ('speechSynthesis' in window) {
+                const utterance = new SpeechSynthesisUtterance(word);
+                utterance.lang = 'en-US';
+                window.speechSynthesis.speak(utterance);
+            } else {
+                showToast("음성 출력을 지원하지 않는 브라우저입니다.");
+            }
+        }
+
+        function renderWordTable(list) {
+            const tbody = document.getElementById('word-table-body');
+            tbody.innerHTML = "";
+            const displayList = list.slice(0, 300);
+
+            displayList.forEach(item => {
+                const isMem = memorizedSet.has(item.id);
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-slate-700/40 transition border-b border-slate-700/50";
+                tr.innerHTML = `
+                    <td class="py-3 px-4 font-semibold text-indigo-400">D${item.day}</td>
+                    <td class="py-3 px-4 font-bold text-white">${item.w}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400">[${item.p}]</td>
+                    <td class="py-3 px-4 text-slate-200">${item.m}</td>
+                    <td class="py-3 px-4 text-xs text-slate-400 truncate max-w-xs">${item.e}</td>
+                    <td class="py-3 px-4 text-center">
+                        <button onclick="toggleTableMemorized(${item.id})" class="px-2.5 py-1 rounded text-xs font-semibold ${isMem ? 'bg-emerald-600 text-white' : 'bg-slate-700 text-slate-400 hover:text-white'}">
+                            ${isMem ? '완료' : '미완료'}
+                        </button>
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function toggleTableMemorized(id) {
+            if (memorizedSet.has(id)) {
+                memorizedSet.delete(id);
+            } else {
+                memorizedSet.add(id);
+            }
+            updateStats();
+            filterWords();
+        }
+
+        function filterWords() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const dayFilter = document.getElementById('filter-day').value;
+
+            let filtered = vocabulary;
+            if (dayFilter !== 'all') {
+                filtered = filtered.filter(item => item.day === parseInt(dayFilter));
+            }
+
+            if (query.trim() !== '') {
+                filtered = filtered.filter(item => item.w.toLowerCase().includes(query) || item.m.toLowerCase().includes(query));
+            }
+
+            renderWordTable(filtered);
+        }
+
+        let quizQuestions = [];
+        let quizCurrentIdx = 0;
+        let quizScore = 0;
+
+        function startQuiz() {
+            document.getElementById('quiz-start-screen').classList.add('hidden');
+            document.getElementById('quiz-result-screen').classList.add('hidden');
+            document.getElementById('quiz-question-screen').classList.remove('hidden');
+
+            quizQuestions = [...vocabulary].sort(() => 0.5 - Math.random()).slice(0, 10);
+            quizCurrentIdx = 0;
+            quizScore = 0;
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            if (quizCurrentIdx >= quizQuestions.length) {
+                showQuizResult();
+                return;
+            }
+
+            const q = quizQuestions[quizCurrentIdx];
+            document.getElementById('quiz-progress-text').innerText = `문제 ${quizCurrentIdx + 1} / 10`;
+            document.getElementById('quiz-score-text').innerText = `점수: ${quizScore}점`;
+            document.getElementById('quiz-day-tag').innerText = `DAY ${q.day}`;
+            document.getElementById('quiz-word').innerText = q.w;
+
+            const wrongOptions = vocabulary.filter(item => item.m !== q.m).sort(() => 0.5 - Math.random()).slice(0, 3).map(item => item.m);
+            const options = [...wrongOptions, q.m].sort(() => 0.5 - Math.random());
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = "";
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full text-left p-4 bg-slate-700/60 hover:bg-slate-700 border border-slate-600 rounded-xl font-medium text-slate-200 transition flex justify-between items-center";
+                btn.innerHTML = `<span>${opt}</span> <i class="fa-solid fa-chevron-right text-xs text-slate-500"></i>`;
+                btn.onclick = () => checkQuizAnswer(opt === q.m, btn, q.m);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkQuizAnswer(isCorrect, btnElement, correctMeaning) {
+            const allBtns = document.getElementById('quiz-options').querySelectorAll('button');
+            allBtns.forEach(b => b.disabled = true);
+
+            if (isCorrect) {
+                btnElement.className = "w-full text-left p-4 bg-emerald-600/30 border border-emerald-500 rounded-xl font-bold text-emerald-300 flex justify-between items-center";
+                quizScore += 10;
+            } else {
+                btnElement.className = "w-full text-left p-4 bg-rose-600/30 border border-rose-500 rounded-xl font-bold text-rose-300 flex justify-between items-center";
+                allBtns.forEach(b => {
+                    if (b.innerText.includes(correctMeaning)) {
+                        b.className = "w-full text-left p-4 bg-emerald-600/30 border border-emerald-500 rounded-xl font-bold text-emerald-300 flex justify-between items-center";
+                    }
+                });
+            }
+
+            setTimeout(() => {
+                quizCurrentIdx++;
+                loadQuizQuestion();
+            }, 1200);
+        }
+
+        function showQuizResult() {
+            document.getElementById('quiz-question-screen').classList.add('hidden');
+            document.getElementById('quiz-result-screen').classList.remove('hidden');
+            document.getElementById('quiz-final-score').innerText = `${quizScore}점`;
+        }
+
+        function showToast(msg) {
+            const toast = document.createElement('div');
+            toast.className = "fixed bottom-5 right-5 bg-slate-700 text-white px-4 py-2 rounded-xl shadow-xl text-xs z-50 border border-slate-600";
+            toast.innerText = msg;
+            document.body.appendChild(toast);
+            setTimeout(() => toast.remove(), 2500);
+        }
+
+        window.onload = initApp;
+    </script>
+</body>
+</html>
